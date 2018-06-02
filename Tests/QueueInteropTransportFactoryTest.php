@@ -57,10 +57,6 @@ class QueueInteropTransportFactoryTest extends TestCase
      */
     public function testItThrowsAnExceptionWhenContextDoesNotExist()
     {
-        $queuePsrContext = $this->prophesize(PsrContext::class);
-        $decoder = $this->prophesize(DecoderInterface::class);
-        $encoder = $this->prophesize(EncoderInterface::class);
-
         $container = $this->prophesize(ContainerInterface::class);
         $container->has('enqueue.transport.foo.context')->willReturn(false);
 

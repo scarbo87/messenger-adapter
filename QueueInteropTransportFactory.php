@@ -30,7 +30,6 @@ class QueueInteropTransportFactory implements TransportFactoryInterface
     private $decoder;
     private $encoder;
     private $debug;
-
     private $container;
 
     public function __construct(DecoderInterface $decoder, EncoderInterface $encoder, ContainerInterface $container, bool $debug = false)
@@ -57,13 +56,15 @@ class QueueInteropTransportFactory implements TransportFactoryInterface
     {
         [$contextManager, $options] = $this->parseDsn($dsn);
 
-        return new QueueInteropTransport(
+        $transport = new QueueInteropTransport(
             $this->decoder,
             $this->encoder,
             $contextManager,
             $options,
             $this->debug
         );
+
+        return $transport;
     }
 
     public function supports(string $dsn, array $options): bool

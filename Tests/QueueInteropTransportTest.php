@@ -11,6 +11,8 @@
 
 namespace Enqueue\MessengerAdapter\Tests;
 
+use Enqueue\AmqpTools\DelayStrategyAware;
+use Enqueue\AmqpTools\RabbitMqDelayPluginDelayStrategy;
 use Enqueue\MessengerAdapter\QueueInteropTransport;
 use PHPUnit\Framework\TestCase;
 use Interop\Queue\PsrContext;
@@ -44,8 +46,9 @@ class QueueInteropTransportTest extends TestCase
         $topicProphecy = $this->prophesize(PsrDestination::class);
         $psrTopic = $topicProphecy->reveal();
 
-        $producerProphecy = $this->prophesize(PsrProducer::class);
+        $producerProphecy = $this->prophesize(PsrProducerWithDelay::class);
         $producerProphecy->setDeliveryDelay(100)->shouldBeCalled();
+        $producerProphecy->setDelayStrategy(new RabbitMqDelayPluginDelayStrategy())->shouldBeCalled();
         $producerProphecy->setPriority(100)->shouldBeCalled();
         $producerProphecy->setTimeToLive(100)->shouldBeCalled();
         $producerProphecy->send($psrTopic, $psrMessage)->shouldBeCalled();
@@ -70,8 +73,10 @@ class QueueInteropTransportTest extends TestCase
                 'topic' => array('name' => $topic),
                 'queue' => array('name' => $queue),
                 'deliveryDelay' => 100,
-                'priority' => '100',
+                'delayStrategy' => RabbitMqDelayPluginDelayStrategy::class,
+                'priority' => 100,
                 'timeToLive' => 100,
+                'receiveTimeout' => 100,
             ),
             true
         );
@@ -173,4 +178,8 @@ class QueueInteropTransportTest extends TestCase
             $debug
         );
     }
+}
+
+interface PsrProducerWithDelay extends PsrProducer, DelayStrategyAware
+{
 }
