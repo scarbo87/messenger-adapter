@@ -13,6 +13,7 @@ namespace Enqueue\MessengerAdapter;
 
 use Enqueue\MessengerAdapter\Exception\RejectMessageException;
 use Enqueue\MessengerAdapter\Exception\RequeueMessageException;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\DecoderInterface;
 use Symfony\Component\Messenger\Transport\Serialization\EncoderInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -41,8 +42,6 @@ class QueueInteropTransport implements TransportInterface
         $this->contextManager = $contextManager;
         $this->options = $options;
         $this->debug = $debug;
-
-        $this->receiveTimeout = 1000; // 1s
     }
 
     /**
@@ -93,7 +92,7 @@ class QueueInteropTransport implements TransportInterface
     /**
      * {@inheritdoc}
      */
-    public function send($message): void
+    public function send(Envelope $message): void
     {
         $psrContext = $this->contextManager->psrContext();
         $destination = $this->getDestination();

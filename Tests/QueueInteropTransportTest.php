@@ -17,6 +17,7 @@ use Interop\Queue\PsrContext;
 use Interop\Queue\PsrProducer;
 use Interop\Queue\PsrDestination;
 use Interop\Queue\PsrMessage;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\SenderInterface;
 use Symfony\Component\Messenger\Transport\Serialization\EncoderInterface;
 use Enqueue\MessengerAdapter\ContextManager;
@@ -36,8 +37,7 @@ class QueueInteropTransportTest extends TestCase
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new \stdClass();
-        $message->foo = 'bar';
+        $message = new Envelope('bar');
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
@@ -83,8 +83,7 @@ class QueueInteropTransportTest extends TestCase
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new \stdClass();
-        $message->foo = 'bar';
+        $message = new Envelope('bar');
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
@@ -126,8 +125,7 @@ class QueueInteropTransportTest extends TestCase
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new \stdClass();
-        $message->foo = 'bar';
+        $message = new Envelope('bar');
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
