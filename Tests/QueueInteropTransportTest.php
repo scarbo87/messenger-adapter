@@ -39,7 +39,9 @@ class QueueInteropTransportTest extends TestCase
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new Envelope('bar');
+        $message = new \stdClass();
+        $message->foo = 'bar';
+        $envelope = new Envelope($message);
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
@@ -63,7 +65,7 @@ class QueueInteropTransportTest extends TestCase
         $contextManagerProphecy->ensureExists(array('topic' => $topic, 'queue' => $queue))->shouldBeCalled();
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
-        $encoderProphecy->encode($message)->shouldBeCalled()->willReturn(array('body' => 'foo'));
+        $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
 
         $transport = $this->getTransport(
             null,
@@ -81,14 +83,16 @@ class QueueInteropTransportTest extends TestCase
             true
         );
 
-        $transport->send($message);
+        $transport->send($envelope);
     }
 
     public function testSendWithoutDebugWillNotVerifyTheInfrastructureForPerformanceReasons()
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new Envelope('bar');
+        $message = new \stdClass();
+        $message->foo = 'bar';
+        $envelope = new Envelope($message);
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
@@ -107,7 +111,7 @@ class QueueInteropTransportTest extends TestCase
         $contextManagerProphecy->psrContext()->shouldBeCalled()->willReturn($psrContextProphecy->reveal());
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
-        $encoderProphecy->encode($message)->shouldBeCalled()->willReturn(array('body' => 'foo'));
+        $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
 
         $transport = $this->getTransport(
             null,
@@ -120,7 +124,7 @@ class QueueInteropTransportTest extends TestCase
             false
         );
 
-        $transport->send($message);
+        $transport->send($envelope);
     }
 
     /**
@@ -130,7 +134,9 @@ class QueueInteropTransportTest extends TestCase
     {
         $topic = 'topic';
         $queue = 'queue';
-        $message = new Envelope('bar');
+        $message = new \stdClass();
+        $message->foo = 'bar';
+        $envelope = new Envelope($message);
 
         $psrMessageProphecy = $this->prophesize(PsrMessage::class);
         $psrMessage = $psrMessageProphecy->reveal();
@@ -152,7 +158,7 @@ class QueueInteropTransportTest extends TestCase
         $contextManagerProphecy->recoverException($exception, array('topic' => $topic, 'queue' => $queue))->shouldBeCalled()->willReturn(false);
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
-        $encoderProphecy->encode($message)->shouldBeCalled()->willReturn(array('body' => 'foo'));
+        $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
 
         $transport = $this->getTransport(
             null,
@@ -165,7 +171,7 @@ class QueueInteropTransportTest extends TestCase
             false
         );
 
-        $transport->send($message);
+        $transport->send($envelope);
     }
 
     private function getTransport(DecoderInterface $decoder = null, EncoderInterface $encoder = null, ContextManager $contextManager = null, array $options = array(), $debug = false)

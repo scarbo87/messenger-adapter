@@ -56,15 +56,13 @@ class QueueInteropTransportFactory implements TransportFactoryInterface
     {
         [$contextManager, $options] = $this->parseDsn($dsn);
 
-        $transport = new QueueInteropTransport(
+        return new QueueInteropTransport(
             $this->decoder,
             $this->encoder,
             $contextManager,
             $options,
             $this->debug
         );
-
-        return $transport;
     }
 
     public function supports(string $dsn, array $options): bool

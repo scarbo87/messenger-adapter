@@ -173,11 +173,7 @@ class QueueInteropTransport implements TransportInterface
         $resolver->setAllowedTypes('timeToLive', array('null', 'int'));
         $resolver->setAllowedTypes('delayStrategy', array('null', 'string'));
 
-        $resolver->setAllowedValues('delayStrategy', array(
-                null,
-                RabbitMqDelayPluginDelayStrategy::class,
-                RabbitMqDlxDelayStrategy::class, )
-        );
+        $resolver->setAllowedValues('delayStrategy', array(null, RabbitMqDelayPluginDelayStrategy::class, RabbitMqDlxDelayStrategy::class));
         $resolver->setNormalizer('delayStrategy', function (Options $options, $value) {
             return null !== $value ? new $value() : null;
         });
