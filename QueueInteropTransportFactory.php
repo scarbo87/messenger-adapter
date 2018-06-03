@@ -78,7 +78,9 @@ class QueueInteropTransportFactory implements TransportFactoryInterface
         $amqpOptions = array();
         if (isset($parsedDsn['query'])) {
             parse_str($parsedDsn['query'], $parsedQuery);
-
+            $parsedQuery = array_map(function ($e) {
+                return is_numeric($e) ? (int) $e : $e;
+            }, $parsedQuery);
             $amqpOptions = array_replace_recursive($amqpOptions, $parsedQuery);
         }
 
