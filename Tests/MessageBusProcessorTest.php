@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Symfony package.
  *
@@ -7,7 +8,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace Enqueue\MessengerAdapter\Tests;
+
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\DecoderInterface;
@@ -29,6 +32,7 @@ class MessageBusProcessorTest extends TestCase
         $messageProphecy->getBody()->shouldBeCalled()->willReturn('body');
         $messageProphecy->getHeaders()->shouldBeCalled()->willReturn(array('header'));
         $messageProphecy->getProperties()->shouldBeCalled()->willReturn('props');
+
         return $messageProphecy->reveal();
     }
 
