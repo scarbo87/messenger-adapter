@@ -18,6 +18,7 @@ use Enqueue\MessengerAdapter\EnvelopeItem\RepeatMessage;
 use Enqueue\MessengerAdapter\Exception\RejectMessageException;
 use Enqueue\MessengerAdapter\Exception\RepeatMessageException;
 use Enqueue\MessengerAdapter\Exception\RequeueMessageException;
+use Interop\Amqp\AmqpTopic;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Serialization\DecoderInterface;
 use Symfony\Component\Messenger\Transport\Serialization\EncoderInterface;
@@ -62,54 +63,57 @@ class QueueInteropTransport implements TransportInterface
     {
         $psrContext = $this->contextManager->psrContext();
         $destination = $this->getDestination(null);
-        $queue = $psrContext->createQueue($destination['queue']);
-        $consumer = $psrContext->createConsumer($queue);
 
-        if ($this->debug) {
-            $this->contextManager->ensureExists($destination);
-        }
+        foreach ($destination['queue'] as $name) {
+            $queue = $psrContext->createQueue($name);
+            $consumer = $psrContext->createConsumer($queue);
 
-        while (!$this->shouldStop) {
-            try {
-                if (null === ($message = $consumer->receive($this->options['receiveTimeout'] ?? 0))) {
-                    $handler(null);
-                    continue;
-                }
-            } catch (\Exception $e) {
-                if ($this->contextManager->recoverException($e, $destination)) {
-                    continue;
-                }
-
-                throw $e;
+            if ($this->debug) {
+                $this->contextManager->ensureExists($destination);
             }
 
-            try {
-                $envelope = $this->decoder->decode(
-                    array(
-                        'body' => $message->getBody(),
-                        'headers' => $message->getHeaders(),
-                        'properties' => $message->getProperties(),
-                    )
-                );
-                $handler($envelope);
+            while (!$this->shouldStop) {
+                try {
+                    if (null === ($message = $consumer->receive($this->options['receiveTimeout'] ?? 0))) {
+                        $handler(null);
+                        continue;
+                    }
+                } catch (\Exception $e) {
+                    if ($this->contextManager->recoverException($e, $destination)) {
+                        continue;
+                    }
 
-                $consumer->acknowledge($message);
-            } catch (RepeatMessageException $e) {
-                $consumer->reject($message);
+                    throw $e;
+                }
 
-                $repeat = $envelope->get(RepeatMessage::class);
-                if (null === $repeat) {
-                    $repeat = new RepeatMessage($e->getTimeToDelay(), $e->getMaxAttempts());
+                try {
+                    $envelope = $this->decoder->decode(
+                        array(
+                            'body' => $message->getBody(),
+                            'headers' => $message->getHeaders(),
+                            'properties' => $message->getProperties(),
+                        )
+                    );
+                    $handler($envelope);
+
+                    $consumer->acknowledge($message);
+                } catch (RepeatMessageException $e) {
+                    $consumer->reject($message);
+
+                    $repeat = $envelope->get(RepeatMessage::class);
+                    if (null === $repeat) {
+                        $repeat = new RepeatMessage($e->getTimeToDelay(), $e->getMaxAttempts());
+                    }
+                    if ($repeat->isRepeatable()) {
+                        $this->send($envelope->with($repeat));
+                    }
+                } catch (RejectMessageException $e) {
+                    $consumer->reject($message);
+                } catch (RequeueMessageException $e) {
+                    $consumer->reject($message, true);
+                } catch (\Throwable $e) {
+                    $consumer->reject($message);
                 }
-                if ($repeat->isRepeatable()) {
-                    $this->send($envelope->with($repeat));
-                }
-            } catch (RejectMessageException $e) {
-                $consumer->reject($message);
-            } catch (RequeueMessageException $e) {
-                $consumer->reject($message, true);
-            } catch (\Throwable $e) {
-                $consumer->reject($message);
             }
         }
     }
@@ -121,7 +125,7 @@ class QueueInteropTransport implements TransportInterface
     {
         $psrContext = $this->contextManager->psrContext();
         $destination = $this->getDestination($message);
-        $topic = $psrContext->createTopic($destination['topic']);
+        $topic = $psrContext->createTopic($destination['topic']['name']);
 
         if ($this->debug) {
             $this->contextManager->ensureExists($destination);
@@ -189,8 +193,8 @@ class QueueInteropTransport implements TransportInterface
             'delayStrategy' => RabbitMqDelayPluginDelayStrategy::class,
             'priority' => null,
             'timeToLive' => null,
-            'topic' => array('name' => 'messages'),
-            'queue' => array('name' => 'messages'),
+            'topic' => array('name' => 'messages', 'type' => AmqpTopic::TYPE_DIRECT),
+            'queue' => array(array('name' => 'messages')),
         ));
 
         $resolver->setAllowedTypes('receiveTimeout', array('null', 'int'));
@@ -222,10 +226,17 @@ class QueueInteropTransport implements TransportInterface
         /** @var TransportConfiguration|null $configuration */
         $configuration = $message ? $message->get(TransportConfiguration::class) : null;
         $topic = null !== $configuration ? $configuration->getTopic() : null;
-
-        return array(
-            'topic' => $topic ?? $this->options['topic']['name'],
-            'queue' => $this->options['queue']['name'],
+        $result = array(
+            'topic' => [
+                'name' => $topic ?? $this->options['topic']['name'],
+                'type' => $this->options['topic']['type'] ?? AmqpTopic::TYPE_DIRECT,
+            ],
         );
+
+        foreach ($this->options['queue'] as $queue) {
+            $result['queue'][] = $queue['name'];
+        }
+
+        return $result;
     }
 }
