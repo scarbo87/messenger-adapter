@@ -68,7 +68,7 @@ class QueueInteropTransportTest extends TestCase
 
         $contextManagerProphecy = $this->prophesize(ContextManager::class);
         $contextManagerProphecy->psrContext()->shouldBeCalled()->willReturn($psrContextProphecy->reveal());
-        $contextManagerProphecy->ensureExists(array('topic' => $topic, 'queue' => $queue))->shouldBeCalled();
+        $contextManagerProphecy->ensureExists(array('topic' => array('name' => $topic, 'type' => 'direct'), 'queue' => array($queue)))->shouldBeCalled();
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
         $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
@@ -79,7 +79,7 @@ class QueueInteropTransportTest extends TestCase
             $contextManagerProphecy->reveal(),
             array(
                 'topic' => array('name' => $topic),
-                'queue' => array('name' => $queue),
+                'queue' => array(array('name' => $queue)),
                 'deliveryDelay' => 100,
                 'delayStrategy' => RabbitMqDelayPluginDelayStrategy::class,
                 'priority' => 100,
@@ -125,7 +125,7 @@ class QueueInteropTransportTest extends TestCase
             $contextManagerProphecy->reveal(),
             array(
                 'topic' => array('name' => $topic),
-                'queue' => array('name' => $queue),
+                'queue' => array(array('name' => $queue)),
             ),
             false
         );
@@ -157,7 +157,7 @@ class QueueInteropTransportTest extends TestCase
 
         $contextManagerProphecy = $this->prophesize(ContextManager::class);
         $contextManagerProphecy->psrContext()->shouldBeCalled()->willReturn($psrContextProphecy->reveal());
-        $contextManagerProphecy->ensureExists(array('topic' => $specificTopic, 'queue' => $queue))->shouldBeCalled();
+        $contextManagerProphecy->ensureExists(array('topic' => array('name' => $specificTopic, 'type' => 'direct'), 'queue' => array($queue)))->shouldBeCalled();
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
         $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
@@ -168,7 +168,7 @@ class QueueInteropTransportTest extends TestCase
             $contextManagerProphecy->reveal(),
             array(
                 'topic' => array('name' => $topic),
-                'queue' => array('name' => $queue),
+                'queue' => array(array('name' => $queue)),
             ),
             true
         );
@@ -204,7 +204,7 @@ class QueueInteropTransportTest extends TestCase
 
         $contextManagerProphecy = $this->prophesize(ContextManager::class);
         $contextManagerProphecy->psrContext()->shouldBeCalled()->willReturn($psrContextProphecy->reveal());
-        $contextManagerProphecy->recoverException($exception, array('topic' => $topic, 'queue' => $queue))->shouldBeCalled()->willReturn(false);
+        $contextManagerProphecy->recoverException($exception, array('topic' => array('name' => $topic, 'type' => 'direct'), 'queue' => array($queue)))->shouldBeCalled()->willReturn(false);
 
         $encoderProphecy = $this->prophesize(EncoderInterface::class);
         $encoderProphecy->encode($envelope)->shouldBeCalled()->willReturn(array('body' => 'foo'));
@@ -215,7 +215,7 @@ class QueueInteropTransportTest extends TestCase
             $contextManagerProphecy->reveal(),
             array(
                 'topic' => array('name' => $topic),
-                'queue' => array('name' => $queue),
+                'queue' => array(array('name' => $queue)),
             ),
             false
         );
