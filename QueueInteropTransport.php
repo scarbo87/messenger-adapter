@@ -227,10 +227,10 @@ class QueueInteropTransport implements TransportInterface
         $configuration = $message ? $message->get(TransportConfiguration::class) : null;
         $topic = null !== $configuration ? $configuration->getTopic() : null;
         $result = array(
-            'topic' => [
+            'topic' => array(
                 'name' => $topic ?? $this->options['topic']['name'],
                 'type' => $this->options['topic']['type'] ?? AmqpTopic::TYPE_DIRECT,
-            ],
+            ),
         );
 
         foreach ($this->options['queue'] as $queue) {
