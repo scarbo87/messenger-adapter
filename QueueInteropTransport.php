@@ -80,13 +80,21 @@ class QueueInteropTransport implements TransportInterface
      */
     private $shouldStop;
 
+    /**
+     * @param EventDispatcherInterface $dispatcher
+     * @param DecoderInterface         $decoder
+     * @param EncoderInterface         $encoder
+     * @param ContextManager           $contextManager
+     * @param array                    $options
+     * @param bool                     $debug
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         DecoderInterface $decoder,
         EncoderInterface $encoder,
         ContextManager $contextManager,
         array $options = array(),
-        $debug = false
+        bool $debug = false
     ) {
         $this->dispatcher = $dispatcher;
 
@@ -169,13 +177,15 @@ class QueueInteropTransport implements TransportInterface
                         } catch (\Throwable $e) {
                             $this->dispatcher->dispatch(
                                 Events::ENVELOPE_FAIL_ON_REPEAT,
-                                new EnvelopeFailOnRepeat($envelope, $message, $name, $repeat->getAttempts(), $repeat->getMaxAttempts(), $e)
+                                new EnvelopeFailOnRepeat($envelope, $message, $name, $repeat->getAttempts(),
+                                    $repeat->getMaxAttempts(), $e)
                             );
                         }
                     } else {
                         $this->dispatcher->dispatch(
                             Events::ENVELOPE_REACH_REPEAT_LIMIT,
-                            new EnvelopeReachRepeatLimit($envelope, $message, $name, $repeat->getAttempts(), $repeat->getMaxAttempts(), $e)
+                            new EnvelopeReachRepeatLimit($envelope, $message, $name, $repeat->getAttempts(),
+                                $repeat->getMaxAttempts(), $e)
                         );
                     }
                 } catch (RequeueMessageException $e) {

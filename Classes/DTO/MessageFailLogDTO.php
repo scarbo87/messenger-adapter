@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Enqueue\MessengerAdapter\Classes\DTO;
 
 use Interop\Queue\PsrMessage;
@@ -16,44 +7,28 @@ use Symfony\Component\Messenger\Envelope;
 
 class MessageFailLogDTO
 {
-    /**
-     * @var PsrMessage
-     */
+    /** @var PsrMessage */
     protected $message;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $queueName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $eventType;
 
-    /**
-     * @var \Throwable
-     */
+    /** @var \Throwable */
     protected $exception;
 
-    /**
-     * @var Envelope|null
-     */
+    /** @var Envelope|null */
     protected $envelope;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $attempt;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     protected $limit;
 
     /**
-     * MessageFailLogDTO constructor.
-     *
      * @param PsrMessage    $message
      * @param string        $queueName
      * @param string        $eventType

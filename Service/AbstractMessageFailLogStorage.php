@@ -5,8 +5,8 @@ namespace Enqueue\MessengerAdapter\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\MessengerAdapter\Classes\DTO\MessageFailLogDTO;
 use Enqueue\MessengerAdapter\Entity\AbstractMessageFailLog;
-use Enqueue\MessengerAdapter\Exception\ExpectedMessageLogGotAnother;
-use Enqueue\MessengerAdapter\Exception\MessageLogIsNotExisted;
+use Enqueue\MessengerAdapter\Exception\UnexpectedMessageLog;
+use Enqueue\MessengerAdapter\Exception\MessageLogNotFound;
 use Enqueue\MessengerAdapter\Service\Contract\MessageFailLogStorageInterface;
 
 abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInterface
@@ -17,8 +17,6 @@ abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInt
     protected $em;
 
     /**
-     * MessageFailLogStorage constructor.
-     *
      * @param EntityManagerInterface $em
      */
     public function __construct(EntityManagerInterface $em)
@@ -27,15 +25,11 @@ abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInt
     }
 
     /**
-     * @param MessageFailLogDTO $dto
+     * {@inheritdoc}
      */
     public function log(MessageFailLogDTO $dto): void
     {
         $entity = $this->getEntity();
-
-        if (!($entity instanceof AbstractMessageFailLog)) {
-            throw new ExpectedMessageLogGotAnother(sprintf('Class %s is not instanceof AbstractMessageFailLog', \get_class($entity)));
-        }
 
         $entity->setQueueName($dto->getQueueName())
             ->setAttempt($dto->getAttempt())
@@ -67,26 +61,19 @@ abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInt
     }
 
     /**
-     * @param $identifier
+     * {@inheritdoc}
      *
-     * @return AbstractMessageFailLog
+     * @throws MessageLogNotFound
      */
     public function getByIdentifier($identifier): AbstractMessageFailLog
     {
         /** @var AbstractMessageFailLog $entity */
-        $entity = $this->em
-            ->getRepository(\get_class($this->getEntity()))
-            ->find($identifier);
+        $entity = $this->em->getRepository(\get_class($this->getEntity()))->find($identifier);
 
         if (!$entity) {
-            throw new MessageLogIsNotExisted(sprintf('Identifier %s is not present in database', $identifier));
+            throw new MessageLogNotFound(sprintf('Identifier %s is not present in database', $identifier));
         }
 
         return $entity;
     }
-
-    /**
-     * @return AbstractMessageFailLog
-     */
-    abstract public function getEntity(): AbstractMessageFailLog;
 }

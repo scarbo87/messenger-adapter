@@ -55,7 +55,7 @@ class EnvelopeFailOnRepeat extends Event
      * @param int        $limit
      * @param \Throwable $e
      */
-    public function __construct(Envelope $envelope, PsrMessage $message, string $queueName, int $attempt, $limit, \Throwable $e)
+    public function __construct(Envelope $envelope, PsrMessage $message, string $queueName, int $attempt, int $limit, \Throwable $e)
     {
         $this->envelope = $envelope;
         $this->message = $message;

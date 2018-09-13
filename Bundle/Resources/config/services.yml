@@ -15,5 +15,4 @@ services:
         class: 'Enqueue\MessengerAdapter\Service\AbstractMessageFailLogStorage'
 
     Enqueue\MessengerAdapter\EventSubscriber\QueueInteropTransportFailSubscriber:
-        tags:
-            - { name: kernel.event_subscriber }
+        tags: ['kernel.event_subscriber']
