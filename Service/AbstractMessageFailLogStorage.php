@@ -5,8 +5,7 @@ namespace Enqueue\MessengerAdapter\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Enqueue\MessengerAdapter\Classes\DTO\MessageFailLogDTO;
 use Enqueue\MessengerAdapter\Entity\AbstractMessageFailLog;
-use Enqueue\MessengerAdapter\Exception\UnexpectedMessageLog;
-use Enqueue\MessengerAdapter\Exception\MessageLogNotFound;
+use Enqueue\MessengerAdapter\Exception\MessageLogNotFoundException;
 use Enqueue\MessengerAdapter\Service\Contract\MessageFailLogStorageInterface;
 
 abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInterface
@@ -63,7 +62,7 @@ abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInt
     /**
      * {@inheritdoc}
      *
-     * @throws MessageLogNotFound
+     * @throws MessageLogNotFoundException
      */
     public function getByIdentifier($identifier): AbstractMessageFailLog
     {
@@ -71,7 +70,7 @@ abstract class AbstractMessageFailLogStorage implements MessageFailLogStorageInt
         $entity = $this->em->getRepository(\get_class($this->getEntity()))->find($identifier);
 
         if (!$entity) {
-            throw new MessageLogNotFound(sprintf('Identifier %s is not present in database', $identifier));
+            throw new MessageLogNotFoundException(sprintf('Identifier %s is not present in database', $identifier));
         }
 
         return $entity;

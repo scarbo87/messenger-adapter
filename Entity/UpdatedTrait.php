@@ -9,7 +9,7 @@ trait UpdatedTrait
     /**
      * @var \DateTimeInterface|null
      *
-     * @ORM\Column(type="datetime", nullable = true)
+     * @ORM\Column(type="datetime")
      */
     protected $updated;
 

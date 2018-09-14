@@ -9,12 +9,14 @@ interface MessageFailLogStorageInterface
 {
     /**
      * @param MessageFailLogDTO $dto
+     *
      * @return mixed
      */
     public function log(MessageFailLogDTO $dto);
 
     /**
      * @param $identifier
+     *
      * @return AbstractMessageFailLog
      */
     public function getByIdentifier($identifier): AbstractMessageFailLog;
